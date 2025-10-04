@@ -2,8 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Sparkles } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
-import { useFormState } from 'react-dom';
+import { useActionState, useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -43,7 +42,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   const formAction = task ? updateTask.bind(null, task.id) : createTask;
-  const [state, dispatch] = useFormState(formAction, undefined);
+  const [state, dispatch] = useActionState(formAction, undefined);
 
   const form = useForm<TaskFormData>({
     resolver: zodResolver(TaskFormSchema),
@@ -100,7 +99,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
         toast({
           variant: 'destructive',
           title: 'AI Assistant Error',
-          description: result.error,
+          description: result.error.toString(),
         });
         setSuggestions([]);
       } else if (result.data) {
@@ -111,7 +110,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[800px]">
         <form action={dispatch}>
           <DialogHeader>
             <DialogTitle>{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
@@ -177,7 +176,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
                 )}
 
                 {suggestions.length > 0 && (
-                  <div className="mt-2 space-y-2">
+                  <div className="mt-2 space-y-2 bg-background p-4 rounded-md shadow-lg z-50">
                     <p className="text-sm font-medium">Suggestions:</p>
                     {suggestions.map((s, i) => (
                       <Button

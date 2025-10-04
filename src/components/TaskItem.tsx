@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Loader2 } from 'lucide-react';
 import { useOptimistic, useState, useTransition } from 'react';
 import { deleteTask, toggleTaskCompletion } from '@/app/actions';
 
@@ -25,7 +25,8 @@ import {
 
 export function TaskItem({ task }: { task: Task }) {
   const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
+  const [isTogglePending, startToggleTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
 
   const [optimisticTask, setOptimisticTask] = useOptimistic(
@@ -34,27 +35,27 @@ export function TaskItem({ task }: { task: Task }) {
   );
 
   const handleToggle = () => {
-    startTransition(async () => {
+    startToggleTransition(async () => {
       setOptimisticTask(!optimisticTask.completed);
-      const result = await toggleTaskCompletion(optimisticTask);
+      const result = await toggleTaskCompletion(optimisticTask.id, !optimisticTask.completed);
       if (result.error) {
         toast({
           variant: 'destructive',
           title: 'Error updating task',
-          description: result.error,
+          description: result.error.toString(),
         });
       }
     });
   };
 
   const handleDelete = () => {
-    startTransition(async () => {
+    startDeleteTransition(async () => {
       const result = await deleteTask(optimisticTask.id);
       if (result.error) {
         toast({
           variant: 'destructive',
           title: 'Error deleting task',
-          description: result.error,
+          description: result.error.toString(),
         });
       } else {
         toast({
@@ -74,16 +75,20 @@ export function TaskItem({ task }: { task: Task }) {
         )}
       >
         <CardContent className="p-4 flex items-start gap-4">
-          <Checkbox
-            id={`task-${optimisticTask.id}`}
-            checked={optimisticTask.completed}
-            onCheckedChange={handleToggle}
-            className="mt-1"
-            aria-label={`Mark "${optimisticTask.title}" as ${
-              optimisticTask.completed ? 'incomplete' : 'complete'
-            }`}
-            disabled={isPending}
-          />
+          {isTogglePending ? (
+            <Loader2 className="h-5 w-5 animate-spin mt-1" />
+          ) : (
+            <Checkbox
+              id={`task-${optimisticTask.id}`}
+              checked={optimisticTask.completed}
+              onCheckedChange={handleToggle}
+              className="mt-1"
+              aria-label={`Mark "${optimisticTask.title}" as ${
+                optimisticTask.completed ? 'incomplete' : 'complete'
+              }`}
+              disabled={isTogglePending || isDeletePending}
+            />
+          )}
           <div className="grid gap-1 flex-1">
             <label
               htmlFor={`task-${optimisticTask.id}`}
@@ -109,7 +114,7 @@ export function TaskItem({ task }: { task: Task }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsEditFormOpen(true)}
-              disabled={isPending}
+              disabled={isTogglePending || isDeletePending}
               aria-label={`Edit task "${optimisticTask.title}"`}
             >
               <Pencil className="h-4 w-4" />
@@ -120,10 +125,10 @@ export function TaskItem({ task }: { task: Task }) {
                   variant="ghost"
                   size="icon"
                   className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                  disabled={isPending}
+                  disabled={isTogglePending || isDeletePending}
                   aria-label={`Delete task "${optimisticTask.title}"`}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {isDeletePending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -135,7 +140,8 @@ export function TaskItem({ task }: { task: Task }) {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90" disabled={isDeletePending}>
+                    {isDeletePending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Delete
                   </AlertDialogAction>
                 </AlertDialogFooter>

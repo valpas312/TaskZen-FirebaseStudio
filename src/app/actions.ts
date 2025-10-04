@@ -35,6 +35,40 @@ async function getAuthHeaders() {
   }
 }
 
+/**
+ * A generic, reusable function to update a task's data in the database.
+ * This function is not exported and is only used internally by other actions.
+ * Using a single function for all updates makes the code cleaner, more consistent,
+ * and easier to maintain.
+ * @param id The ID of the task to update.
+ * @param data An object containing the task properties to update.
+ * @returns A promise that resolves with the updated task or an error.
+ */
+async function updateTaskData(
+  id: number,
+  data: Partial<Omit<Task, 'id'>>
+): Promise<ActionResponse<Task>> {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      return { error: `Failed to update task: ${errorText}` };
+    }
+
+    revalidatePath('/');
+    return { data: await response.json() };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { error: message };
+  }
+}
+
 export async function getTasks(): Promise<ActionResponse<Task[]>> {
   try {
     const headers = await getAuthHeaders();
@@ -90,6 +124,16 @@ export async function createTask(
   }
 }
 
+/**
+ * Updates a task's title and description based on form data.
+ * This action is called from the TaskForm component.
+ * It validates the form data and then uses the generic updateTaskData function
+ * to perform the actual update.
+ * @param id The ID of the task to update.
+ * @param prevState The previous state of the form.
+ * @param formData The data from the submitted form.
+ * @returns A promise that resolves with the updated task or an error.
+ */
 export async function updateTask(
   id: number,
   prevState: unknown,
@@ -104,47 +148,24 @@ export async function updateTask(
     return { error: validatedFields.error.formErrors };
   }
 
-  try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(validatedFields.data),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { error: `Failed to update task: ${errorText}` };
-    }
-
-    revalidatePath('/');
-    return { data: await response.json() };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return { error: message };
-  }
+  // Calls the generic update function with the validated form data.
+  return updateTaskData(id, validatedFields.data);
 }
 
-export async function toggleTaskCompletion(task: Task): Promise<ActionResponse<Task>> {
-  try {
-    const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks/${task.id}`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ ...task, completed: !task.completed }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return { error: `Failed to update task: ${errorText}` };
-    }
-
-    revalidatePath('/');
-    return { data: await response.json() };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return { error: message };
-  }
+/**
+ * Toggles the completion status of a single task.
+ * This action is called from the TaskItem component when the checkbox is clicked.
+ * It uses the generic updateTaskData function to set the new 'completed' state.
+ * @param id The ID of the task to toggle.
+ * @param completed The new completion status.
+ * @returns A promise that resolves with the updated task or an error.
+ */
+export async function toggleTaskCompletion(
+  id: number,
+  completed: boolean
+): Promise<ActionResponse<Task>> {
+  // Calls the generic update function to toggle the completion status.
+  return updateTaskData(id, { completed });
 }
 
 export async function deleteTask(id: number): Promise<ActionResponse<null>> {
