@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-logged-out",
+      "description": "A hero image for the logged-out state of TaskZen, showing an organized workspace.",
+      "imageUrl": "https://images.unsplash.com/photo-1758876016678-9e412ab12d9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwcm9kdWN0aXZpdHklMjB0YXNrc3xlbnwwfHx8fDE3NTk1NDExNjN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "productivity tasks"
+    }
+  ]
 }
