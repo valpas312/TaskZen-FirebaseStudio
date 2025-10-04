@@ -6,6 +6,8 @@ export type Task = {
 };
 
 export const TaskSchema = {
+  id: 'number',
   title: 'string',
   description: 'string',
+  completed: 'boolean',
 };
