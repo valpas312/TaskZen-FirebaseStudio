@@ -74,27 +74,38 @@ async function updateTaskData(
 }
 
 export async function getTasks(): Promise<ActionResponse<Task[]>> {
-  try {
-    const headers = await getAuthHeaders();
-    const fetchOptions = {
-      headers,
-      next: { tags: ['tasks'] },
-    };
-    console.log(`Fetching: ${API_BASE_URL}/tasks`, fetchOptions);
-    const response = await fetch(`${API_BASE_URL}/tasks`, fetchOptions);
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error:', errorText);
-      return { error: `Failed to fetch tasks: ${response.statusText}` };
+    try {
+      const headers = await getAuthHeaders();
+      const fetchOptions = {
+        headers,
+        next: { tags: ['tasks'] },
+      };
+      console.log(`Fetching: ${API_BASE_URL}/tasks`, fetchOptions);
+      const response = await fetch(`${API_BASE_URL}/tasks`, fetchOptions);
+  
+      const responseText = await response.text();
+  
+      if (!response.ok) {
+        console.error('API Error:', responseText);
+        return { error: `Failed to fetch tasks: ${response.statusText}` };
+      }
+  
+      console.log('Backend response:', responseText);
+  
+      try {
+        const data = JSON.parse(responseText);
+        return { data };
+      } catch (error) {
+          console.error('Failed to parse JSON:', error);
+          return { error: 'Failed to parse server response.' };
+      }
+  
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+      console.error("Error in getTasks:", message);
+      return { error: message };
     }
-    const data = await response.json();
-    return { data };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred.';
-    console.error(message);
-    return { error: message };
   }
-}
 
 export async function createTask(
   prevState: unknown,

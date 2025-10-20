@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Sparkles } from 'lucide-react';
 import { useActionState, useEffect, useState, useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,6 +35,17 @@ interface TaskFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: Task;
+}
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      Save Task
+    </Button>
+  );
 }
 
 export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
@@ -203,12 +215,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              Save Task
-            </Button>
+            <SubmitButton />
           </DialogFooter>
         </form>
       </DialogContent>
