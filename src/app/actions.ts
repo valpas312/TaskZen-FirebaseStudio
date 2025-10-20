@@ -50,14 +50,17 @@ async function updateTaskData(
 ): Promise<ActionResponse<Task>> {
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    const fetchOptions = {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
-    });
+    };
+    console.log(`Fetching: ${API_BASE_URL}/tasks/${id}`, fetchOptions);
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, fetchOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`Failed to update task: ${errorText}`);
       return { error: `Failed to update task: ${errorText}` };
     }
 
@@ -65,6 +68,7 @@ async function updateTaskData(
     return { data: await response.json() };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error(message);
     return { error: message };
   }
 }
@@ -72,10 +76,12 @@ async function updateTaskData(
 export async function getTasks(): Promise<ActionResponse<Task[]>> {
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks`, {
+    const fetchOptions = {
       headers,
       next: { tags: ['tasks'] },
-    });
+    };
+    console.log(`Fetching: ${API_BASE_URL}/tasks`, fetchOptions);
+    const response = await fetch(`${API_BASE_URL}/tasks`, fetchOptions);
     if (!response.ok) {
       const errorText = await response.text();
       console.error('API Error:', errorText);
@@ -105,14 +111,17 @@ export async function createTask(
 
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks`, {
+    const fetchOptions = {
       method: 'POST',
       headers,
       body: JSON.stringify(validatedFields.data),
-    });
+    };
+    console.log(`Fetching: ${API_BASE_URL}/tasks`, fetchOptions);
+    const response = await fetch(`${API_BASE_URL}/tasks`, fetchOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`Failed to create task: ${errorText}`);
       return { error: `Failed to create task: ${errorText}` };
     }
 
@@ -120,6 +129,7 @@ export async function createTask(
     return { data: await response.json() };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error(message);
     return { error: message };
   }
 }
@@ -171,13 +181,16 @@ export async function toggleTaskCompletion(
 export async function deleteTask(id: number): Promise<ActionResponse<null>> {
   try {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, {
+    const fetchOptions = {
       method: 'DELETE',
       headers,
-    });
+    };
+    console.log(`Fetching: ${API_BASE_URL}/tasks/${id}`, fetchOptions);
+    const response = await fetch(`${API_BASE_URL}/tasks/${id}`, fetchOptions);
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`Failed to delete task: ${errorText}`);
       return { error: `Failed to delete task: ${errorText}` };
     }
 
@@ -185,6 +198,7 @@ export async function deleteTask(id: number): Promise<ActionResponse<null>> {
     return { data: null };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'An unknown error occurred.';
+    console.error(message);
     return { error: message };
   }
 }
@@ -200,6 +214,7 @@ export async function getAiSuggestions(
     return { data: result.suggestions };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to get AI suggestions.';
+    console.error(message);
     return { error: message };
   }
 }
