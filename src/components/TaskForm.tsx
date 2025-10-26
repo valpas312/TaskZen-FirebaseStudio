@@ -124,7 +124,7 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px]">
         <form action={dispatch}>
-          <DialogHeader>
+          <DialogHeader className="text-center">
             <DialogTitle>{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
             <DialogDescription>
               {task
@@ -133,8 +133,8 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
+            <div className="grid grid-cols-1 items-center gap-4">
+              <Label htmlFor="title" className="text-left">
                 Title
               </Label>
               <div className="col-span-3">
@@ -154,8 +154,8 @@ export function TaskForm({ open, onOpenChange, task }: TaskFormProps) {
                 )}
               </div>
             </div>
-            <div className="grid grid-cols-4 items-start gap-4">
-              <Label htmlFor="description" className="text-right pt-2">
+            <div className="grid grid-cols-1 items-start gap-4">
+              <Label htmlFor="description" className="text-left pt-2">
                 Description
               </Label>
               <div className="col-span-3">

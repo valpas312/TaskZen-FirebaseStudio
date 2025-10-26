@@ -42,6 +42,8 @@ const taskTitleSuggestionsPrompt = ai.definePrompt({
 
   Generate 3 title suggestions that are concise and accurately reflect the task. Return them as a JSON array of strings.
   Ensure the array is parsable.
+
+  In Spanish if it is written in spanish
   `,
 });
 

@@ -39,15 +39,11 @@ const taskDescriptionSuggestionsPrompt = ai.definePrompt({
   name: 'taskDescriptionSuggestionsPrompt',
   input: {schema: TaskDescriptionSuggestionsInputSchema},
   output: {schema: TaskDescriptionSuggestionsOutputSchema},
-  prompt: `You are a helpful task management assistant. Generate three diverse task description suggestions for the task with the following title:
+  prompt: `You are a helpful task management assistant. Your task is to generate three diverse task description suggestions for a given task title. It is crucial that you identify the language of the task title and provide suggestions in that same language. For example, if the title is in Spanish, the suggestions must also be in Spanish.
 
 Task Title: {{{taskTitle}}}
 
-Format each suggestion as a concise sentence.
-
-{{#each suggestions}}
-{{@index}}. {{this}}
-{{/each}}`,
+Format each suggestion as a concise sentence.`,
 });
 
 const taskDescriptionSuggestionsFlow = ai.defineFlow(
